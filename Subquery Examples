@@ -1,0 +1,48 @@
+#SQL query of the average amount paid by the top 5 customers.
+
+SELECT AVG (total_amount_paid)
+FROM
+(SELECT A.customer_id, B.first_name, B.last_name, E.country, D.city, SUM(A.amount) AS total_amount_paid
+FROM payment A
+INNER JOIN customer B ON A.customer_id = B.customer_id
+INNER JOIN address C ON B.address_id = C.address_id
+INNER JOIN city D ON C.city_id = D.city_id
+INNER JOIN country E ON D.country_ID = E.country_ID
+WHERE (city = 'Aurora' and country = 'United States') or (city = 'Acua' and country = 'Mexico') 
+or (city = 'Citrus Heights' and country = 'United States') or (city = 'Iwaki' and country = 'Japan')
+or (city = 'Ambattur' and country = 'India') or (city = 'Shanwei' and country = 'China') 
+or (city = 'So Leopoldo' and country = 'Brazil') or (city = 'Teboksary' and country = 'Russian Federation')
+or (city = 'Tianjin' and country = 'China') or (city = 'Cianjur' and country = 'Indonesia')
+GROUP BY A.customer_id, first_name, last_name, country, city
+ORDER BY total_amount_paid DESC
+LIMIT 5) AS average
+
+
+#SQL query of how many of the top 5 customers are based within each country.
+
+SELECT D.country,
+COUNT (A.customer_id) as "all_customer_count",
+COUNT (top_5_customers) as "top_customer_count"
+FROM customer A
+INNER JOIN address B ON A.address_id = B.address_ID
+INNER JOIN city C on B.city_id = C.city_id
+INNER JOIN country D on C.country_id = D.country_id
+LEFT JOIN 
+(SELECT A.customer_id, B.first_name, B.last_name, E.country, D.city, SUM(A.amount) AS total_amount_paid
+FROM payment A
+INNER JOIN customer B ON A.customer_id = B.customer_id
+INNER JOIN address C ON B.address_id = C.address_id
+INNER JOIN city D ON C.city_id = D.city_id
+INNER JOIN country E ON D.country_ID = E.country_ID
+WHERE (city = 'Aurora' and country = 'United States') or (city = 'Acua' and country = 'Mexico') 
+or (city = 'Citrus Heights' and country = 'United States') or (city = 'Iwaki' and country = 'Japan')
+or (city = 'Ambattur' and country = 'India') or (city = 'Shanwei' and country = 'China') 
+or (city = 'So Leopoldo' and country = 'Brazil') or (city = 'Teboksary' and country = 'Russian Federation')
+or (city = 'Tianjin' and country = 'China') or (city = 'Cianjur' and country = 'Indonesia')
+GROUP BY A.customer_id, first_name, last_name, country, city
+ORDER BY total_amount_paid DESC
+LIMIT 5) top_5_customers ON A.customer_id = top_5_customers.customer_id
+GROUP BY D.country
+ORDER BY (all_customer_count) DESC
+LIMIT 5;
+
